@@ -1,6 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import pandas as pd
 from pathlib import Path
+import json
+import os
+from kafka import KafkaProducer
+from contextlib import asynccontextmanager
+from starlette import status
+from psycopg.rows import dict_row
+
 
 if __name__ == "__main__":
     #reads data
@@ -11,9 +18,31 @@ if __name__ == "__main__":
 
 DATA_PATH = Path(__file__).parent/"top_5_speed.csv"
 
-app = FastAPI()
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
+PRODUCTS_TOPIC = os.getenv("PRODUCTS_TOPIC", "products.created")
+
+
+
+@asynccontextmanager    
+async def lifespan(app: FastAPI):
+    app.state.kafka_producer = KafkaProducer (
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        values_serializer=lambda v: json.dumps(v).encode("uft-8"),
+        key_serializer=lambda k: k.encode("uft-8") if k else None,
+    )
+
+    yield
+
+    try:
+        app.state.kafka_producer.close()
+    except Exception:
+        pass
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def root():
     df = pd.read_csv(DATA_PATH)
     return df.to_dict(orient="records")
+
+@app.post("/products", status_code=status.HTTP_201_CREATED)

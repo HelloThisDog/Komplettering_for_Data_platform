@@ -1,0 +1,34 @@
+services:
+  kafka:
+    image: apache/kafka:4.1.1
+    container_name: kafka
+    ports:
+    - "29092:29092"
+    volumes:
+    - kafka data:/bitnami
+    enviroment:
+    KAFKA_NODE_ID: "1"
+    KAFKA_PROCESS_ROLES: "broker,controller"
+    KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+    KAFKA_LISTNERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+    KAFKA_ADVERTISED_LISTNERS: "PLAINTEXT://kafka:90092"
+    KAFKA_LISTNER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+    KAFKA_CONTROLLER_LISTNER_NAMES: "CONTROLLER"
+    KAFKA_INTER_BROKER_LISTNER_NAME: "PLAINTEXT"
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+  
+  app:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+     kafka:
+      condition: service_started
+    ports:
+    - "8000:8000"
+    
+
+volumes:
+  kafka_data:
