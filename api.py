@@ -5,8 +5,7 @@ import json
 import os
 from kafka import KafkaProducer
 from contextlib import asynccontextmanager
-from starlette import status
-from psycopg.rows import dict_row
+
 
 
 if __name__ == "__main__":
@@ -38,6 +37,7 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+
 app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
@@ -45,4 +45,21 @@ def root():
     df = pd.read_csv(DATA_PATH)
     return df.to_dict(orient="records")
 
-@app.post("/products", status_code=status.HTTP_201_CREATED)
+@app.post("/products")
+def post_product():
+    event = {
+        "type": "product.created",
+        "product_id": df["id"],
+        "name": df["name"],
+        "speed": str(df["speed"]),
+    }
+
+    app.state.kafka_producer.send(
+        PRODUCTS_TOPIC,
+        key=str(df["id"]),
+        value=event
+    )
+
+    app.state.kafka_producer.flush()
+
+    return df
