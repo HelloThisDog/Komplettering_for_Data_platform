@@ -20,7 +20,7 @@ services:
     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
   
   kafka-ui:
-    image:provectus/kafka-ui:latest
+    image: provectus/kafka-ui:latest
     container_name: kafka-ui
     ports:
       - "8080:8080"
