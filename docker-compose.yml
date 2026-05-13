@@ -3,32 +3,32 @@ services:
     image: apache/kafka:4.1.1
     container_name: kafka
     ports:
-    - "29092:29092"
+      - "29092:29092"
     volumes:
-    - kafka data:/bitnami
-    enviroment:
-    KAFKA_NODE_ID: "1"
-    KAFKA_PROCESS_ROLES: "broker,controller"
-    KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-    KAFKA_LISTNERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
-    KAFKA_ADVERTISED_LISTNERS: "PLAINTEXT://kafka:90092"
-    KAFKA_LISTNER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
-    KAFKA_CONTROLLER_LISTNER_NAMES: "CONTROLLER"
-    KAFKA_INTER_BROKER_LISTNER_NAME: "PLAINTEXT"
-    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      - kafka data:/bitnami
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTNERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTNERS: "PLAINTEXT://kafka:90092"
+      KAFKA_LISTNER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTNER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTNER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
   
   kafka-ui:
     image: provectus/kafka-ui:latest
     container_name: kafka-ui
     ports:
       - "8080:8080"
-    enviroment:
+    environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
-     - kafka
+      - kafka
   
   app:
     build: .
@@ -38,7 +38,7 @@ services:
      kafka:
       condition: service_started
     ports:
-    - "8000:8000"
+      - "8000:8000"
     
 
 volumes:
