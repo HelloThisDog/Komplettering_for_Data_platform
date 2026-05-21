@@ -27,8 +27,7 @@ async def lifespan(app: FastAPI):
     app.state.kafka_producer = KafkaProducer (
         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
         values_serializer=lambda v: json.dumps(v).encode("uft-8"),
-        key_serializer=lambda k: k.encode("uft-8") if k else None,
-    )
+        key_serializer=lambda k: k.encode("uft-8") if k else None,)
 
     yield
 
@@ -45,8 +44,11 @@ def root():
     df = pd.read_csv(DATA_PATH)
     return df.to_dict(orient="records")
 
+
 @app.post("/products")
 def post_product():
+    df = pd.read_csv(DATA_PATH)
+
     event = {
         "type": "product.created",
         "product_id": df["id"],
